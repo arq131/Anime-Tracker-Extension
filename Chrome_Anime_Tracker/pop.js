@@ -29,34 +29,72 @@ function getCurrentTabUrl(callback) {
   });
 }
 
+/*
+setCookie will set the cookie with "cname=cvalue"
+*/
+function setCookie(cname, cvalue) {
+  document.cookie = cname + "=" + cvalue;
+}
+/*
+ getCookie will get the cookie from a certain field (cname) and return
+ the value of that field.
+*/
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  var i = 0;
+  for (i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+    return "";
+  }
+}
+
 function renderStatus(statusText) {
   document.getElementById('status').textContent = statusText;
 }
+
+function getAnime() {
+    getCurrentTabUrl(function(url) {
+        var CRregex = new RegExp("crunchyroll.com\/(.+)\/(.+)");
+        var GGregex = new RegExp("gogoanime.tv\/(.+)");
+        if (CRregex.test(url)) {
+            var newVar = CRregex.exec(url);
+            var anime = newVar[1].replace(/-/g, ' ');
+            renderStatus('Anime: ' + anime);
+        }           
+    });
+}
+
+document.getElementById('tracker').onclick = function() {
+    getAnime();
+};
+
 
 document.addEventListener('DOMContentLoaded', function() {
   getCurrentTabUrl(function(url) {
   
   var expression = "crunchyroll|gogoanime|kissanime";
-  var regex = new RegExp("(crunchyroll|gogoanime|kissanime)\.com\/(.+)\/");
-  
+  // need to modify regex
+  var regex = new RegExp("(crunchyroll|gogoanime|kissanime)\.com\/(.+)");
+  setCookie("username", "hellolol");
   
     
   if (regex.test(url)) {
     var newVar = regex.exec(url);
-    var anime = newVar[2].replace(/-/g, ' ');
+    var anime = newVar[3].replace(/-/g, ' ');
     renderStatus('This website is an anime website! Anime: ' + anime + '\nurl = ' + url);
-    //document.getElementById('anime-url').textContent = url;
-    var anime_link = document.createElement('a');
-    anime_link.id = 'anime-link';
-    anime_link.href = url;
-    anime_link.innerHTML = 'Anime Link';
-    anime_link.target = '_blank';
-    document.body.appendChild(anime_link);
-    //document.getElementById('anime-link').href = url;
     
     
   } else {
-    renderStatus('This website is not an anime website! ' + url);
+    //renderStatus('This is not a valid link to save.' + url);
+    renderStatus("This is not an anime website!");
   }
 
   });
